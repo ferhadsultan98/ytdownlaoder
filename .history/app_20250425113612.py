@@ -41,8 +41,8 @@ async def start(message: types.Message):
         "Sadəcə YouTube linkini göndər, mən sənə audio faylını göndərəcəm! 🎵"
     )
 
+# Modify the regex to accept both 'youtube.com' and 'm.youtube.com' links
 async def is_youtube_link(text: str) -> bool:
- raff
     youtube_regex = r'(https?://)?(www\.)?(youtube\.com|m\.youtube\.com|youtu\.be)/.+'
     return bool(re.match(youtube_regex, text))
 
@@ -86,10 +86,7 @@ async def handle_message(message: types.Message):
 
 async def main():
     logger.info("Bot işə salındı...")
-    try:
-        await dp.start_polling(bot, skip_updates=True)
-    finally:
-        await bot.session.close()
+    await dp.start_polling(bot)
 
 if __name__ == '__main__':
     asyncio.run(main())
