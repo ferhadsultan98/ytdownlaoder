@@ -38,22 +38,29 @@ async def download_audio(url: str, output_path: str) -> tuple:
             'noplaylist': True,
             'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
             'referer': 'https://www.youtube.com/',
-            'geo_bypass': True,  # Bölge kısıtlamalarını atlamaya çalış
+            'geo_bypass': True,
         }
 
         # Çerez dosyasını kontrol et
         if os.path.exists(COOKIES_FILE):
-            logger.info("Çerez dosyası bulundu, kimlik doğrulama için kullanılıyor")
-            ydl_opts['cookiefile'] = COOKIES_FILE
+            try:
+                if os.path.getsize(COOKIES_FILE) > 0:
+                    logger.info("Çerez dosyası bulundu, kimlik doğrulama üçün istifadə olunur")
+                    ydl_opts['cookiefile'] = COOKIES_FILE
+                else:
+                    logger.warning("Çerez dosyası boşdur, çerezsiz davam edirik")
+            except Exception as e:
+                logger.warning(f"Çerez yoxlamasında xəta: {e}")
         else:
-            logger.warning("Çerez dosyası bulunamadı, çerezsiz indirme deneniyor")
+            logger.info("Çerez dosyası tapılmadı, çerezsiz davam edirik")
 
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=True)
             filename = ydl.prepare_filename(info)
             return True, filename, info['title']
+
     except Exception as e:
-        logger.error(f"Audio indirme hatası: {e}")
+        logger.error(f"Audio indirme xətası: {e}")
         return False, None, None
 
 @dp.message(CommandStart())
